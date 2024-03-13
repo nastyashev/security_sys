@@ -3,6 +3,7 @@ const express = require('express');
 const onFinished = require('on-finished');
 const bodyParser = require('body-parser');
 const path = require('path');
+const jwt = require('jsonwebtoken');
 const port = 3000;
 const fs = require('fs');
 
@@ -11,6 +12,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 const SESSION_KEY = 'Authorization';
+const JWT_SECRET = 'Authorization-secret-key';
 
 class Session {
     #sessions = {}
@@ -46,7 +48,9 @@ class Session {
         const sessionId = uuid.v4();
         this.set(sessionId);
 
-        return sessionId;
+        const token = jwt.sign({ sessionId }, JWT_SECRET, { expiresIn: '1h' });
+
+        return token;
     }
 
     destroy(req, res) {
